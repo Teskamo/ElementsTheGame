@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>Elements the Game 카드 찾기</title>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="./js/elements_cards.js"></script>
+		<style>
+			h2{margin-bottom:0;}
+			h2 > * {vertical-align: middle;}
+			h2 > img {width: 40px;}
+			div{
+				margin-top:20px;
+			}
+
+			#cards {
+				column-count: 3;
+			}
+			.card_wrapper {
+				margin:10px 0;
+				list-style:none;
+			}
+			.card_wrapper li {
+
+			}
+			.card_wrapper a {
+				text-decoration: none;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div id="card_bazzar">
+			<input type="checkbox" name="on_sale" id="on_sale"><label for="on_sale">on sale BAZZAR</label>
+		</div>
+		<div id="card_type">
+			<input type="checkbox" name="creature" id="creature"><label for="creature">크리처</label>
+			<input type="checkbox" name="weapon" id="weapon"><label for="weapon">무기</label>
+			<input type="checkbox" name="shield" id="shield"><label for="shield">방패</label>
+			<input type="checkbox" name="shield" id="spell"><label for="spell">스펠</label>
+		</div>
+		<div id="card_remarks">
+			<input type="checkbox" name="alchemy" id="alchemy"><label for="alchemy">자원별 연금술</label>
+			<input type="checkbox" name="dragon" id="dragon"><label for="dragon">용</label>
+		</div>
+		<div id="card_active">
+			<input type="checkbox" name="resource" id="resource"><label for="resource">자원생산 크리처</label>
+		</div>
+		<div>
+			<span>카드 검색: </span>
+			<input type="text" id="search" autofocus tabindex="0">
+		</div>
+		<div id="cards"></div>
+
+		<script type="text/javascript">
+			var filter = {
+				status:{
+					bazzar:false,
+					search:false,
+					type:{
+						/*
+						creature: true,
+						weapon: true
+						*/
+					},
+					remarks:{
+						/*
+						alchemy: true,
+						dragon: true
+						*/
+					},
+					active:{
+
+					}
+				},
+				render: function(){
+					var self = this;
+					const type = self.status.type;
+					const remarks = self.status.remarks;
+					const active = self.status.active;
+					const bazzar = self.status.bazzar;
+					const search = self.status.search;
+
+					$(".card_wrapper li").each(function(){
+						//filter
+						let bool_render = false;
+						for(let key in type){
+							if($(this).data("type") == key)
+								bool_render = true;
+						}
+						for(let key in remarks){
+							if($(this).data("remarks") == key)
+								bool_render = true;
+						}
+						for(let key in active){
+							if($(this).data("active") == key)
+								bool_render = true;
+						}
+						if($.isEmptyObject(type) && $.isEmptyObject(remarks) && $.isEmptyObject(active))
+							bool_render = true;
+
+						//on sale bazzar
+						if(bazzar && bool_render){
+							if($(this).data("bazzar") !== true)
+								bool_render = false;
+						}
+
+						//search
+						if(search && bool_render){
+							const value = $("#search").val();
+							const reg_val = new RegExp(value, "i");
+							if(!$(this).text().match(reg_val))
+								bool_render = false;
+						}
+
+						if(bool_render)
+							$(this).show(200);
+						else
+							$(this).hide(200);
+					})
+
+
+				},
+				load: function(){
+					for(var quantum in cards){
+						let $quantum = $(`<div id="${quantum}"></div>`);
+							$quantum.append(`<h2><img src="./img/${quantum}.png"> <span>${quantum}</span></h2>`);
+							let $ul = $("<ul class='card_wrapper'></ul>");
+							for(let i=0; i<cards[quantum].length; i++){
+								const card = cards[quantum][i];
+								$ul.append(`<li data-bazzar="${card.bazzar}" data-type="${card.type}" data-remarks="${card.remarks}" data-active="${card.active}">` +
+									`<a href="https://namu.wiki/w/Elements%20the%20Game/${quantum}#s-3.${i+1}" target="_blank">${card.name}</a>`+
+								`</li>`);
+							}
+
+							$quantum.append($ul);
+						$quantum.appendTo($("#cards"));
+					}
+				}
+			}
+
+
+			$(function(){
+				filter.load();
+
+				$("#search").keyup(function(){
+					if($(this).val() == "")
+						filter.status.search = false;
+					else
+						filter.status.search = true;
+					filter.render();
+				});
+
+				$("#card_bazzar input").change(function(){
+					const checked = $(this).prop("checked");
+					filter.status.bazzar = checked;
+					filter.render();
+				});
+/*
+				$("#on_sale").change(function(){
+					let checked = $(this).prop("checked");
+					if(checked){
+						$("li[data-onSale='false']").addClass("d-none");
+					} else {
+						$("li[data-onSale='false']").removeClass("d-none");
+					}
+				})
+*/
+				$("#card_type input").change(function(){
+					const checked = $(this).prop("checked");
+					const id = $(this).attr("id");
+					if(checked)
+						filter.status.type[id] = true;
+					else
+						delete filter.status.type[id];
+
+					filter.render();
+				});
+				$("#card_remarks input").change(function(){
+					const checked = $(this).prop("checked");
+					const id = $(this).attr("id");
+					if(checked)
+						filter.status.remarks[id] = true;
+					else
+						delete filter.status.remarks[id];
+
+					filter.render();
+				});
+				$("#card_active input").change(function(){
+					const checked = $(this).prop("checked");
+					const id = $(this).attr("id");
+					if(checked)
+						filter.status.active[id] = true;
+					else
+						delete filter.status.active[id];
+
+					filter.render();
+				});
+			})
+		</script>
+	</body>
+</html>
