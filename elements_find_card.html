@@ -124,7 +124,7 @@
 				load: function(){
 					for(var quantum in cards){
 						let $quantum = $(`<div id="${quantum}"></div>`);
-							$quantum.append(`<h2><img src="./img/${quantum}.png"> <span>${quantum}</span></h2>`);
+							$quantum.append(`<h2><img src="img/${quantum}.png"> <span>${quantum}</span></h2>`);
 							let $ul = $("<ul class='card_wrapper'></ul>");
 							for(let i=0; i<cards[quantum].length; i++){
 								const card = cards[quantum][i];
